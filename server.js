@@ -1,7 +1,11 @@
+
 // const express = require('express');
 // const dotenv = require('dotenv');
 // const cors = require('cors');
 // const connectDB = require('./config/db');
+
+// // Route Imports
+// const bookingRoutes = require('./routes/bookingRoutes');
 
 // // Load environment variables from .env file
 // dotenv.config();
@@ -20,6 +24,9 @@
 // app.get('/', (req, res) => {
 //   res.json({ message: 'Dropido Drop Taxi API is up and running successfully!' });
 // });
+
+// // API Routes
+// app.use('/api/bookings', bookingRoutes);
 
 // // Define Port
 // const PORT = process.env.PORT || 5000;
@@ -47,9 +54,29 @@ const app = express();
 // Connect to MongoDB Database
 connectDB();
 
+// CORS Configuration (Frontend URLs allow பண்ணுவதற்கு)
+const allowedOrigins = [
+  'https://stellular-truffle-3827b2.netlify.app', // Netlify Live Frontend
+  'http://localhost:5173',                         // Local Vite React
+  'http://localhost:3000'                          // Local Create-React-App
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // origin இல்லாவிட்டாலோ (Postman/cURL) அல்லது allowed list-ல் இருந்தாலோ allow செய்யும்
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Blocked by CORS policy'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // Middleware
 app.use(express.json());
-app.use(cors());
 
 // Test Route
 app.get('/', (req, res) => {
