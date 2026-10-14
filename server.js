@@ -37,6 +37,7 @@
 // });
 
 
+
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -54,16 +55,16 @@ const app = express();
 // Connect to MongoDB Database
 connectDB();
 
-// CORS Configuration (Frontend URLs allow பண்ணுவதற்கு)
+// CORS Settings - Netlify மற்றும் Localhost அனுமதிக்க
 const allowedOrigins = [
-  'https://stellular-truffle-3827b2.netlify.app', // Netlify Live Frontend
-  'http://localhost:5173',                         // Local Vite React
-  'http://localhost:3000'                          // Local Create-React-App
+  'https://stellular-truffle-3827b2.netlify.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    // origin இல்லாவிட்டாலோ (Postman/cURL) அல்லது allowed list-ல் இருந்தாலோ allow செய்யும்
+    // origin இல்லாவிட்டாலோ (Postman/mobile apps) அல்லது allowed list-ல் இருந்தாலோ allow செய்யும்
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -73,9 +74,11 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
 
 // Middleware
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Pre-flight OPTIONS request-களை அனுமதிக்கும்
 app.use(express.json());
 
 // Test Route
@@ -93,3 +96,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
